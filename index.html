@@ -126,7 +126,6 @@
     50% { opacity: 0.4; }
   }
 
-  /* Firebase status badge */
   #fb-status {
     font-size: 9px;
     letter-spacing: 1px;
@@ -480,13 +479,6 @@
   .habit-dot.done { background: var(--green); border-color: var(--green); box-shadow: 0 0 6px var(--green-dim); }
   .habit-dot.miss { background: var(--red-dim); border-color: var(--red); }
 
-  .review-panel {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    padding: 20px;
-    margin-top: 20px;
-  }
-
   .ticker-strip {
     background: var(--bg3);
     border-bottom: 1px solid var(--border);
@@ -562,36 +554,36 @@
           <div class="card-title">TRADING P&L</div>
           <div class="card-badge badge-green">SEMANA</div>
         </div>
-        <div class="metric-big up" id="ov-pnl">+3.2%</div>
+        <div class="metric-big up" id="ov-pnl">—</div>
         <div class="metric-label">Resultado neto semanal</div>
-        <div class="metric-change up">▲ 5 ganadas / 2 perdidas</div>
+        <div class="metric-change up" id="ov-pnl-sub">Sin operaciones aún</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-title">FACULTAD</div>
           <div class="card-badge badge-yellow">EN PROGRESO</div>
         </div>
-        <div class="metric-big" id="ov-fac">68%</div>
+        <div class="metric-big" id="ov-fac">—</div>
         <div class="metric-label">Avance del cuatrimestre</div>
-        <div class="metric-change neutral">▶ 2 materias activas</div>
+        <div class="metric-change neutral" id="ov-fac-sub">Cargando...</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-title">AFIP / TRABAJO</div>
           <div class="card-badge badge-blue">ACTIVO</div>
         </div>
-        <div class="metric-big" id="ov-afip">4/5</div>
+        <div class="metric-big" id="ov-afip">—</div>
         <div class="metric-label">Tareas completadas</div>
-        <div class="metric-change up">▲ Eficiencia alta</div>
+        <div class="metric-change up" id="ov-afip-sub">Cargando...</div>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-title">HÁBITOS</div>
-          <div class="card-badge badge-green">RACHA</div>
+          <div class="card-badge badge-green">SEMANA</div>
         </div>
-        <div class="metric-big" id="ov-hab">5<span style="font-size:14px;color:var(--text-dim)">días</span></div>
-        <div class="metric-label">Racha actual</div>
-        <div class="metric-change up">▲ Mejor que semana anterior</div>
+        <div class="metric-big" id="ov-hab">—</div>
+        <div class="metric-label">% cumplimiento semanal</div>
+        <div class="metric-change up" id="ov-hab-sub">Cargando...</div>
       </div>
     </div>
 
@@ -623,16 +615,12 @@
           <div class="progress-bar"><div class="progress-fill fill-green" style="width:64%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label"><span>UBA — Macroeconomía</span><span class="neutral">70%</span></div>
-          <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:70%"></div></div>
+          <div class="progress-label"><span>Hábitos semanales</span><span class="up" id="ov-prog-hab">—</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-green" id="ov-prog-hab-bar" style="width:0%"></div></div>
         </div>
         <div class="progress-wrap">
-          <div class="progress-label"><span>UP — Finanzas Corporativas</span><span style="color:var(--blue)">45%</span></div>
-          <div class="progress-bar"><div class="progress-fill fill-blue" style="width:45%"></div></div>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-label"><span>Hábitos semanales</span><span class="up">80%</span></div>
-          <div class="progress-bar"><div class="progress-fill fill-green" style="width:80%"></div></div>
+          <div class="progress-label"><span>Tareas trabajo</span><span style="color:var(--blue)" id="ov-prog-afip">—</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-blue" id="ov-prog-afip-bar" style="width:0%"></div></div>
         </div>
         <div class="progress-wrap">
           <div class="progress-label"><span>Cuenta fondeada — challenge</span><span class="neutral">50%</span></div>
@@ -653,7 +641,6 @@
           </tr>
         </thead>
         <tbody id="ov-ops-body">
-          <!-- Cargado desde Firestore -->
         </tbody>
       </table>
     </div>
@@ -768,9 +755,7 @@
           <div class="card-header">
             <div class="card-title">DIARIO DE OPERACIONES</div>
           </div>
-          <ul class="op-log" id="t-oplog">
-            <!-- Cargado desde Firestore -->
-          </ul>
+          <ul class="op-log" id="t-oplog"></ul>
         </div>
       </div>
     </div>
@@ -833,9 +818,7 @@
           <div class="card-title">UBA — LIC. ECONOMÍA</div>
           <span class="card-badge badge-yellow">2022–2027</span>
         </div>
-        <div id="uba-materias">
-          <!-- Cargado desde Firestore -->
-        </div>
+        <div id="uba-materias"></div>
         <div class="divider"></div>
         <div class="input-group">
           <label class="input-label">Agregar / actualizar materia</label>
@@ -852,9 +835,7 @@
           <div class="card-title">UP — LIC. MANAGEMENT</div>
           <span class="card-badge badge-blue">2024–2028</span>
         </div>
-        <div id="up-materias">
-          <!-- Cargado desde Firestore -->
-        </div>
+        <div id="up-materias"></div>
         <div class="divider"></div>
         <div class="input-group">
           <label class="input-label">Agregar / actualizar materia</label>
@@ -874,11 +855,9 @@
       </div>
       <table class="data-table">
         <thead>
-          <tr><th>MATERIA</th><th>INSTITUCIÓN</th><th>FECHA</th><th>TIPO</th><th>ESTADO</th></tr>
+          <tr><th>MATERIA</th><th>INSTITUCIÓN</th><th>FECHA</th><th>TIPO</th><th>ESTADO</th><th></th></tr>
         </thead>
-        <tbody id="examenes-body">
-          <!-- Cargado desde Firestore -->
-        </tbody>
+        <tbody id="examenes-body"></tbody>
       </table>
       <div class="divider"></div>
       <div class="input-row-3" style="margin-top:8px;">
@@ -963,6 +942,8 @@
       <button class="btn btn-green btn-sm" onclick="saveNote()">GUARDAR NOTA</button>
     </div>
   </section>
+
+  <!-- ====== TRABAJO ====== -->
   <section class="section" id="trabajo">
     <div class="grid-2" style="margin-bottom:16px;">
       <div class="card">
@@ -1008,9 +989,7 @@
         <div class="card-header">
           <div class="card-title">LISTA DE TAREAS</div>
         </div>
-        <ul class="op-log" id="tareas-list">
-          <!-- Cargado desde Firestore -->
-        </ul>
+        <ul class="op-log" id="tareas-list"></ul>
       </div>
     </div>
 
@@ -1042,9 +1021,7 @@
           <div style="font-size:9px;color:var(--text-dim);text-align:center;letter-spacing:1px;">SÁB</div>
           <div style="font-size:9px;color:var(--text-dim);text-align:center;letter-spacing:1px;">DOM</div>
         </div>
-        <div id="habits-list">
-          <!-- Cargado desde Firestore -->
-        </div>
+        <div id="habits-list"></div>
         <div class="divider"></div>
         <div class="input-group">
           <label class="input-label">Nuevo hábito</label>
@@ -1127,26 +1104,20 @@
       </div>
     </div>
 
-    <!-- DETALLE HÁBITOS DE LA SEMANA ACTUAL -->
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header">
         <div class="card-title">DETALLE HÁBITOS — SEMANA ACTUAL</div>
         <span class="card-badge badge-green">AUTO</span>
       </div>
-      <div id="rev-habitos-detalle" style="font-size:11px;color:var(--text-dim);">
-        Cargando hábitos...
-      </div>
+      <div id="rev-habitos-detalle" style="font-size:11px;color:var(--text-dim);">Cargando hábitos...</div>
     </div>
 
-    <!-- DETALLE ESTUDIO DE LA SEMANA ACTUAL -->
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header">
         <div class="card-title">DETALLE ESTUDIO — SEMANA ACTUAL</div>
         <span class="card-badge badge-yellow">AUTO</span>
       </div>
-      <div id="rev-estudio-detalle" style="font-size:11px;color:var(--text-dim);">
-        Completá horas en Facultad y guardá para ver el resumen aquí.
-      </div>
+      <div id="rev-estudio-detalle" style="font-size:11px;color:var(--text-dim);">Completá horas en Facultad y guardá para ver el resumen aquí.</div>
     </div>
 
     <div class="card">
@@ -1158,15 +1129,10 @@
         <thead>
           <tr><th>SEMANA</th><th>TRADING</th><th>ESTUDIO</th><th>HÁBITOS %</th><th>BALANCE</th></tr>
         </thead>
-        <tbody id="historial-body">
-          <!-- Cargado desde Firestore -->
-        </tbody>
+        <tbody id="historial-body"></tbody>
       </table>
       <div class="divider"></div>
-
-      <!-- DETALLE EXPANDIBLE DEL HISTORIAL -->
       <div id="historial-detalle-container" style="margin-bottom:12px;"></div>
-
       <button class="btn btn-green" onclick="saveRevision()" style="width:100%;">▣ GUARDAR REVISIÓN SEMANAL</button>
     </div>
   </section>
@@ -1175,36 +1141,25 @@
   <section class="section" id="meses">
     <div class="section-title" id="mes-titulo">MES ACTUAL</div>
 
-    <!-- MES ACTUAL -->
-    <div class="grid-4" style="margin-bottom:16px;" id="mes-kpis">
-      <!-- KPIs cargados dinámicamente -->
-    </div>
+    <div class="grid-4" style="margin-bottom:16px;" id="mes-kpis"></div>
 
-    <!-- DESGLOSE HÁBITOS -->
     <div class="grid-2" style="margin-bottom:16px;">
       <div class="card">
         <div class="card-header">
           <div class="card-title">HÁBITOS — DESGLOSE DEL MES</div>
           <span class="card-badge badge-green">% CUMPLIMIENTO</span>
         </div>
-        <div id="mes-habitos-desglose">
-          <div style="color:var(--text-dim);font-size:11px;">Cargando...</div>
-        </div>
+        <div id="mes-habitos-desglose"><div style="color:var(--text-dim);font-size:11px;">Cargando...</div></div>
       </div>
-
-      <!-- DESGLOSE ESTUDIO -->
       <div class="card">
         <div class="card-header">
           <div class="card-title">ESTUDIO — HORAS DEL MES</div>
           <span class="card-badge badge-yellow">POR MATERIA</span>
         </div>
-        <div id="mes-estudio-desglose">
-          <div style="color:var(--text-dim);font-size:11px;">Cargando...</div>
-        </div>
+        <div id="mes-estudio-desglose"><div style="color:var(--text-dim);font-size:11px;">Cargando...</div></div>
       </div>
     </div>
 
-    <!-- HISTORIAL DE MESES -->
     <div class="card">
       <div class="card-header">
         <div class="card-title">HISTORIAL DE MESES</div>
@@ -1213,17 +1168,10 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>MES</th>
-            <th>TRADING P&L</th>
-            <th>WIN RATE</th>
-            <th>HÁBITOS %</th>
-            <th>ESTUDIO HS</th>
-            <th>TRABAJO</th>
+            <th>MES</th><th>TRADING P&L</th><th>WIN RATE</th><th>HÁBITOS %</th><th>ESTUDIO HS</th><th>TRABAJO</th>
           </tr>
         </thead>
-        <tbody id="mes-historial-body">
-          <!-- Cargado dinámicamente -->
-        </tbody>
+        <tbody id="mes-historial-body"></tbody>
       </table>
     </div>
   </section>
@@ -1247,7 +1195,6 @@
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // ---- CONFIG ----
   const firebaseConfig = {
     apiKey: "AIzaSyAGfXyBG1OuoOyNgtdmLNvXHq1WD2MsnRo",
     authDomain: "peisys.firebaseapp.com",
@@ -1292,15 +1239,14 @@
     const isLong = op.tipo && op.tipo.includes('COMPRA');
     const isGanada = op.estado === 'GANADA';
     const resultClass = isGanada ? 'up' : (op.estado === 'PERDIDA' ? 'down' : 'neutral');
-    return `
-      <tr>
-        <td class="op-pair">${op.par || '—'}</td>
-        <td><span class="op-type ${isLong ? 'op-buy' : 'op-sell'}">${isLong ? 'COMPRA' : 'VENTA'}</span></td>
-        <td class="${resultClass}">${op.resultado || '—'}</td>
-        <td class="${resultClass}">—</td>
-        <td style="color:var(--text-dim)">${op.fecha || '—'}</td>
-        <td style="color:var(--text-dim)">${(op.notas || '').substring(0,30) || '—'}</td>
-      </tr>`;
+    return `<tr>
+      <td class="op-pair">${op.par || '—'}</td>
+      <td><span class="op-type ${isLong ? 'op-buy' : 'op-sell'}">${isLong ? 'COMPRA' : 'VENTA'}</span></td>
+      <td class="${resultClass}">${op.resultado || '—'}</td>
+      <td class="${resultClass}">—</td>
+      <td style="color:var(--text-dim)">${op.fecha || '—'}</td>
+      <td style="color:var(--text-dim)">${(op.notas || '').substring(0,30) || '—'}</td>
+    </tr>`;
   }
 
   function renderOpLog(op) {
@@ -1347,24 +1293,16 @@
       container.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">No hay operaciones abiertas.</div>';
       return;
     }
-    const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
-    let html = `<table class="data-table">
-      <thead>
-        <tr>
-          <th>PAR</th><th>TIPO</th><th>ENTRADA</th><th>SL</th><th>TP</th><th>FECHA</th><th>CERRAR</th>
-        </tr>
-      </thead>
-      <tbody>`;
+    let html = `<table class="data-table"><thead><tr>
+      <th>PAR</th><th>TIPO</th><th>ENTRADA</th><th>SL</th><th>TP</th><th>FECHA</th><th>CERRAR</th>
+    </tr></thead><tbody>`;
     abiertas.forEach(op => {
       const isLong = op.tipo && op.tipo.includes('COMPRA');
       const entrada = parseFloat(op.entrada) || 0;
       const sl = parseFloat(op.sl) || 0;
       const tp = parseFloat(op.tp) || 0;
-
-      // Calcular R% automático según resultado
-      const diffTP = entrada > 0 ? (((tp - entrada) / entrada) * 100 * (isLong ? 1 : -1)).toFixed(2) : '—';
-      const diffSL = entrada > 0 ? (((sl - entrada) / entrada) * 100 * (isLong ? 1 : -1)).toFixed(2) : '—';
-
+      const diffTP = entrada > 0 ? (((tp - entrada) / entrada) * 100 * (isLong ? 1 : -1)).toFixed(2) : 0;
+      const diffSL = entrada > 0 ? (((sl - entrada) / entrada) * 100 * (isLong ? 1 : -1)).toFixed(2) : 0;
       html += `<tr>
         <td class="op-pair">${op.par || '—'}</td>
         <td><span class="op-type ${isLong ? 'op-buy' : 'op-sell'}">${isLong ? 'LONG' : 'SHORT'}</span></td>
@@ -1385,6 +1323,59 @@
     container.innerHTML = html;
   }
 
+  // ---- TRADING METRICS — definida correctamente como función ----
+  function updateTradingMetrics(ops) {
+    const won = ops.filter(o => o.estado === 'GANADA').length;
+    const lost = ops.filter(o => o.estado === 'PERDIDA').length;
+    const be = ops.filter(o => o.estado === 'BREAKEVEN').length;
+    const open = ops.filter(o => o.estado === 'ABIERTA').length;
+    const total = won + lost + be;
+    const wr = total > 0 ? Math.round((won / total) * 100) : 0;
+
+    document.getElementById('t-won').textContent = won;
+    document.getElementById('t-lost').textContent = lost;
+    document.getElementById('t-be').textContent = be;
+    document.getElementById('t-open').textContent = open;
+    document.getElementById('t-winrate').textContent = wr + '%';
+    document.getElementById('t-winrate').className = 'metric-big ' + (wr >= 50 ? 'up' : 'down');
+
+    // Overview P&L
+    let pnl = 0;
+    ops.filter(o => o.estado !== 'ABIERTA').forEach(op => {
+      const r = parseFloat((op.resultado || '0').replace('%','').replace('+',''));
+      if (!isNaN(r)) pnl += r;
+    });
+    const pnlStr = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
+    const ovPnl = document.getElementById('ov-pnl');
+    if (ovPnl) {
+      ovPnl.textContent = pnlStr;
+      ovPnl.className = 'metric-big ' + (pnl >= 0 ? 'up' : 'down');
+    }
+    const ovSub = document.getElementById('ov-pnl-sub');
+    if (ovSub) ovSub.textContent = `▲ ${won} ganadas / ${lost} perdidas`;
+  }
+
+  function updateTareasMetrics(tareas) {
+    const total = tareas.length;
+    const done = tareas.filter(t => t.completada).length;
+    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    document.getElementById('afip-total').textContent = `${done}/${total}`;
+    document.getElementById('afip-eficiencia').textContent = pct + '%';
+    document.getElementById('afip-pct-label').textContent = pct + '%';
+    document.getElementById('afip-progress-bar').style.width = pct + '%';
+
+    // Overview trabajo
+    const ovAfip = document.getElementById('ov-afip');
+    if (ovAfip) ovAfip.textContent = `${done}/${total}`;
+    const ovAfipProg = document.getElementById('ov-prog-afip');
+    if (ovAfipProg) ovAfipProg.textContent = pct + '%';
+    const ovAfipBar = document.getElementById('ov-prog-afip-bar');
+    if (ovAfipBar) ovAfipBar.style.width = pct + '%';
+  }
+
+  // ===============================
+  // CERRAR OPERACIÓN
+  // ===============================
   window.cerrarOperacion = async function(id, estado, resultado) {
     const label = estado === 'GANADA' ? 'TP alcanzado' : estado === 'PERDIDA' ? 'SL alcanzado' : 'Breakeven';
     if (!confirm(`¿Cerrar operación como ${label}?`)) return;
@@ -1400,29 +1391,6 @@
       setStatus('online');
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
   };
-    const won = ops.filter(o => o.estado === 'GANADA').length;
-    const lost = ops.filter(o => o.estado === 'PERDIDA').length;
-    const be = ops.filter(o => o.estado === 'BREAKEVEN').length;
-    const open = ops.filter(o => o.estado === 'ABIERTA').length;
-    const total = won + lost + be;
-    const wr = total > 0 ? Math.round((won / total) * 100) : 0;
-    document.getElementById('t-won').textContent = won;
-    document.getElementById('t-lost').textContent = lost;
-    document.getElementById('t-be').textContent = be;
-    document.getElementById('t-open').textContent = open;
-    document.getElementById('t-winrate').textContent = wr + '%';
-    document.getElementById('t-winrate').className = 'metric-big ' + (wr >= 50 ? 'up' : 'down');
-  }
-
-  function updateTareasMetrics(tareas) {
-    const total = tareas.length;
-    const done = tareas.filter(t => t.completada).length;
-    const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-    document.getElementById('afip-total').textContent = `${done}/${total}`;
-    document.getElementById('afip-eficiencia').textContent = pct + '%';
-    document.getElementById('afip-pct-label').textContent = pct + '%';
-    document.getElementById('afip-progress-bar').style.width = pct + '%';
-  }
 
   // ===============================
   // OPERACIONES — tiempo real
@@ -1432,22 +1400,14 @@
 
   onSnapshot(opsQuery, (snapshot) => {
     allOps = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Tabla overview
     const ovBody = document.getElementById('ov-ops-body');
     ovBody.innerHTML = allOps.slice(0, 10).map(renderOpRow).join('');
-
-    // Log trading
     const log = document.getElementById('t-oplog');
     log.innerHTML = '';
     allOps.slice(0, 20).forEach(op => log.appendChild(renderOpLog(op)));
-
     updateTradingMetrics(allOps);
     renderOpsAbiertas(allOps);
-    // Si la solapa MESES está activa, actualizarla también
-    if (document.getElementById('meses').classList.contains('active')) {
-      renderMesActual();
-    }
+    if (document.getElementById('meses').classList.contains('active')) renderMesActual();
     setStatus('online');
   }, (err) => {
     console.error('Error ops:', err);
@@ -1461,8 +1421,7 @@
   let materiasUP = [];
 
   function actualizarTrackerEstudio() {
-    const todas = [...materiasUBA, ...materiasUP];
-    renderEstudioTracker(todas);
+    renderEstudioTracker([...materiasUBA, ...materiasUP]);
   }
 
   onSnapshot(collection(db, 'materias_uba'), (snapshot) => {
@@ -1472,11 +1431,18 @@
       .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
     materiasUBA.forEach(m => container.appendChild(renderMateria(m)));
     actualizarTrackerEstudio();
+
+    // Overview facultad
+    const todas = [...materiasUBA, ...materiasUP];
+    if (todas.length > 0) {
+      const avg = Math.round(todas.reduce((s, m) => s + (parseInt(m.pct) || 0), 0) / todas.length);
+      const ovFac = document.getElementById('ov-fac');
+      if (ovFac) ovFac.textContent = avg + '%';
+      const ovFacSub = document.getElementById('ov-fac-sub');
+      if (ovFacSub) ovFacSub.textContent = `▶ ${todas.length} materias activas`;
+    }
   });
 
-  // ===============================
-  // MATERIAS UP
-  // ===============================
   onSnapshot(collection(db, 'materias_up'), (snapshot) => {
     const container = document.getElementById('up-materias');
     container.innerHTML = '';
@@ -1563,6 +1529,22 @@
       `;
       list.appendChild(div);
     });
+
+    // Overview hábitos
+    let cumplidos = 0, posibles = 0;
+    habitosData.forEach(h => {
+      (h.dias || []).forEach(d => {
+        if (d === 'done') { cumplidos++; posibles++; }
+        else if (d === 'miss') { posibles++; }
+      });
+    });
+    const pctHab = posibles > 0 ? Math.round((cumplidos/posibles)*100) : 0;
+    const ovHab = document.getElementById('ov-hab');
+    if (ovHab) ovHab.textContent = pctHab + '%';
+    const ovProgHab = document.getElementById('ov-prog-hab');
+    if (ovProgHab) ovProgHab.textContent = pctHab + '%';
+    const ovProgHabBar = document.getElementById('ov-prog-hab-bar');
+    if (ovProgHabBar) ovProgHabBar.style.width = pctHab + '%';
   });
 
   // ===============================
@@ -1582,7 +1564,6 @@
       const isPos = r.trading && r.trading.includes('+');
       const tr = document.createElement('tr');
       tr.style.cursor = 'pointer';
-      tr.title = 'Click para ver detalle de hábitos';
       tr.innerHTML = `
         <td style="color:var(--text-dim)">${r.semana || '—'} <span style="font-size:9px;color:var(--green)">▼</span></td>
         <td class="${isPos ? 'up' : 'down'}">${r.trading || '—'}</td>
@@ -1590,21 +1571,17 @@
         <td class="${habNum >= 60 ? 'up' : 'neutral'}">${r.hab || '—'}%</td>
         <td><span class="card-badge ${badgeClass}">${badgeLabel}</span></td>
       `;
-
-      // Click para expandir detalle de hábitos
       tr.addEventListener('click', () => {
         if (!detalleContainer) return;
         const habDet = r.habitosDetalle;
         if (!habDet || habDet.length === 0) {
-          detalleContainer.innerHTML = `<div style="padding:10px;font-size:11px;color:var(--text-dim)">Sin detalle de hábitos para ${r.semana}. Las revisiones guardadas antes de esta actualización no tienen detalle.</div>`;
+          detalleContainer.innerHTML = `<div style="padding:10px;font-size:11px;color:var(--text-dim)">Sin detalle para ${r.semana}.</div>`;
           return;
         }
         const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
         let html = `<div style="margin-top:8px;padding:12px;border:1px solid var(--border2);background:var(--bg3);">
           <div style="font-size:9px;letter-spacing:2px;color:var(--green);margin-bottom:10px;">DETALLE — ${r.semana}</div>
-          <table class="data-table">
-            <thead><tr><th>HÁBITO</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}</tr></thead>
-            <tbody>`;
+          <table class="data-table"><thead><tr><th>HÁBITO</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}</tr></thead><tbody>`;
         habDet.forEach(h => {
           const celdas = dias.map(d => {
             const v = h.dias ? h.dias[d] : 'vacio';
@@ -1617,15 +1594,80 @@
         html += `</tbody></table></div>`;
         detalleContainer.innerHTML = html;
       });
-
       tbody.appendChild(tr);
     });
   });
 
   // ===============================
-  // FUNCIONES GLOBALES
+  // DETALLE HÁBITOS EN REVISIÓN
   // ===============================
+  function renderDetalleHabitos(habitos) {
+    const container = document.getElementById('rev-habitos-detalle');
+    if (!habitos || habitos.length === 0) {
+      container.innerHTML = '<span style="color:var(--text-dim)">No hay hábitos registrados esta semana.</span>';
+      return;
+    }
+    const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+    let html = `<table class="data-table" style="margin-top:8px;">
+      <thead><tr><th>HÁBITO</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th>CUMPLIMIENTO</th></tr></thead><tbody>`;
+    habitos.forEach(h => {
+      const diasArr = h.dias || [false,false,false,false,false,false,false];
+      let cumplidos = 0, fallidos = 0;
+      const celdas = diasArr.map(d => {
+        if (d === 'done') { cumplidos++; return `<td style="text-align:center"><span style="color:var(--green)">✓</span></td>`; }
+        if (d === 'miss') { fallidos++; return `<td style="text-align:center"><span style="color:var(--red)">✗</span></td>`; }
+        return `<td style="text-align:center"><span style="color:var(--text-dim)">—</span></td>`;
+      }).join('');
+      const total = cumplidos + fallidos;
+      const pct = total > 0 ? Math.round((cumplidos/total)*100) : null;
+      const pctStr = pct !== null ? `<span class="${pct>=75?'up':pct>=50?'neutral':'down'}">${pct}%</span>` : `<span style="color:var(--text-dim)">—</span>`;
+      html += `<tr><td class="op-pair">${h.nombre}</td>${celdas}<td>${pctStr}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+  }
 
+  function renderDetalleEstudio() {
+    const container = document.getElementById('rev-estudio-detalle');
+    if (!container) return;
+    const todas = [...materiasUBA, ...materiasUP];
+    if (todas.length === 0) {
+      container.innerHTML = '<span style="color:var(--text-dim)">No hay materias cargadas.</span>';
+      return;
+    }
+    const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
+    let html = `<table class="data-table" style="margin-top:8px;">
+      <thead><tr><th>MATERIA</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th style="text-align:center">TOTAL</th></tr></thead><tbody>`;
+    let hayHoras = false;
+    todas.forEach(m => {
+      let total = 0;
+      const celdas = dias.map((_,i) => {
+        const v = parseFloat(document.getElementById(`est-${m.id}-${i}`)?.value) || 0;
+        total += v;
+        return `<td style="text-align:center;color:${v>0?'var(--text)':'var(--text-dim)'};">${v > 0 ? v+'h' : '—'}</td>`;
+      }).join('');
+      if (total > 0) hayHoras = true;
+      html += `<tr><td class="op-pair">${m.nombre}</td>${celdas}<td style="text-align:center" class="${total>0?'up':'neutral'}">${total > 0 ? total+'h' : '—'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    if (!hayHoras) {
+      container.innerHTML = '<span style="color:var(--text-dim)">No hay horas cargadas esta semana. Completá el tracker en Facultad.</span>';
+      return;
+    }
+    container.innerHTML = html;
+  }
+
+  const revTab = document.querySelector('[onclick="showSection(\'revision\', this)"]');
+  if (revTab) {
+    revTab.addEventListener('click', () => {
+      renderDetalleHabitos(habitosData);
+      renderDetalleEstudio();
+    });
+  }
+
+  // ===============================
+  // FUNCIONES GLOBALES — WRITE
+  // ===============================
   window.addOperation = async function() {
     const par = document.getElementById('t-par').value.trim();
     const tipo = document.getElementById('t-tipo').value;
@@ -1636,7 +1678,6 @@
     const estado = document.getElementById('t-estado').value;
     const notas = document.getElementById('t-notas').value;
     if (!par) { alert('Ingresá el par o activo'); return; }
-
     const now = new Date();
     const fecha = `${now.getDate()}/${now.getMonth()+1}`;
     setStatus('syncing');
@@ -1645,17 +1686,11 @@
         par: par.toUpperCase(), tipo, entrada, sl, tp, resultado, estado, notas, fecha,
         timestamp: serverTimestamp()
       });
-      ['t-par','t-entrada','t-sl','t-tp','t-resultado','t-notas'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      ['t-par','t-entrada','t-sl','t-tp','t-resultado','t-notas'].forEach(id => document.getElementById(id).value = '');
       document.querySelectorAll('#strategy-tags .tag').forEach(t => t.classList.remove('active'));
       flash('✓ Operación guardada en Firebase');
       setStatus('online');
-    } catch(e) {
-      console.error(e);
-      flash('Error al guardar: ' + e.message);
-      setStatus('offline');
-    }
+    } catch(e) { flash('Error al guardar: ' + e.message); setStatus('offline'); }
   };
 
   window.addMateria = async function(inst) {
@@ -1740,74 +1775,6 @@
     } catch(e) { flash('Error: ' + e.message); }
   };
 
-  // ---- DETALLE HÁBITOS EN REVISIÓN SEMANAL ----
-  function renderDetalleHabitos(habitos) {
-    const container = document.getElementById('rev-habitos-detalle');
-    if (!habitos || habitos.length === 0) {
-      container.innerHTML = '<span style="color:var(--text-dim)">No hay hábitos registrados esta semana.</span>';
-      return;
-    }
-    const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
-    let html = `<table class="data-table" style="margin-top:8px;">
-      <thead><tr><th>HÁBITO</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th>CUMPLIMIENTO</th></tr></thead>
-      <tbody>`;
-    habitos.forEach(h => {
-      const diasArr = h.dias || [false,false,false,false,false,false,false];
-      let cumplidos = 0, fallidos = 0;
-      const celdas = diasArr.map(d => {
-        if (d === 'done') { cumplidos++; return `<td style="text-align:center"><span style="color:var(--green)">✓</span></td>`; }
-        if (d === 'miss') { fallidos++; return `<td style="text-align:center"><span style="color:var(--red)">✗</span></td>`; }
-        return `<td style="text-align:center"><span style="color:var(--text-dim)">—</span></td>`;
-      }).join('');
-      const total = cumplidos + fallidos;
-      const pct = total > 0 ? Math.round((cumplidos/total)*100) : null;
-      const pctStr = pct !== null ? `<span class="${pct>=75?'up':pct>=50?'neutral':'down'}">${pct}%</span>` : `<span style="color:var(--text-dim)">—</span>`;
-      html += `<tr><td class="op-pair">${h.nombre}</td>${celdas}<td>${pctStr}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
-  }
-
-  // Actualizar detalle cuando se abre la sección revisión
-  const revTab = document.querySelector('[onclick="showSection(\'revision\', this)"]');
-  if (revTab) {
-    revTab.addEventListener('click', () => {
-      renderDetalleHabitos(habitosData);
-      renderDetalleEstudio();
-    });
-  }
-
-  function renderDetalleEstudio() {
-    const container = document.getElementById('rev-estudio-detalle');
-    if (!container) return;
-    const todas = [...materiasUBA, ...materiasUP];
-    if (todas.length === 0) {
-      container.innerHTML = '<span style="color:var(--text-dim)">No hay materias cargadas.</span>';
-      return;
-    }
-    const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
-    let html = `<table class="data-table" style="margin-top:8px;">
-      <thead><tr><th>MATERIA</th>${dias.map(d=>`<th style="text-align:center">${d}</th>`).join('')}<th style="text-align:center">TOTAL</th></tr></thead>
-      <tbody>`;
-    let hayHoras = false;
-    todas.forEach(m => {
-      let total = 0;
-      const celdas = dias.map((_,i) => {
-        const v = parseFloat(document.getElementById(`est-${m.id}-${i}`)?.value) || 0;
-        total += v;
-        return `<td style="text-align:center;color:${v>0?'var(--text)':'var(--text-dim)'};">${v > 0 ? v+'h' : '—'}</td>`;
-      }).join('');
-      if (total > 0) hayHoras = true;
-      html += `<tr><td class="op-pair">${m.nombre}</td>${celdas}<td style="text-align:center" class="${total>0?'up':'neutral'}">${total > 0 ? total+'h' : '—'}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    if (!hayHoras) {
-      container.innerHTML = '<span style="color:var(--text-dim)">No hay horas cargadas esta semana. Completá el tracker en Facultad.</span>';
-      return;
-    }
-    container.innerHTML = html;
-  }
-
   window.saveRevision = async function() {
     const trading = document.getElementById('rev-trading').value || '—';
     const fac = document.getElementById('rev-fac').value || '—';
@@ -1818,8 +1785,6 @@
     const aprendi = document.getElementById('rev-aprendi').value || '—';
     const objetivos = document.getElementById('rev-objetivos').value || '—';
     const semana = `Sem ${getWeek(new Date())}/${new Date().getFullYear()}`;
-
-    // Capturar detalle de hábitos al momento de guardar
     const dias = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
     const habitosDetalle = (habitosData || []).map(h => {
       const diasArr = h.dias || [false,false,false,false,false,false,false];
@@ -1827,8 +1792,6 @@
       dias.forEach((d,i) => { resumen[d] = diasArr[i] || 'vacio'; });
       return { nombre: h.nombre, dias: resumen };
     });
-
-    // Capturar detalle de estudio al momento de guardar
     const todas = [...materiasUBA, ...materiasUP];
     const estudioDetalle = todas.map(m => {
       const horas = {};
@@ -1840,18 +1803,15 @@
       });
       return { materia: m.nombre, horas, total };
     }).filter(e => e.total > 0);
-
     setStatus('syncing');
     try {
       await addDoc(collection(db, 'revisiones'), {
         semana, trading, fac, trabajo, hab, bien, mal, aprendi, objetivos,
-        habitosDetalle, estudioDetalle,
-        timestamp: serverTimestamp()
+        habitosDetalle, estudioDetalle, timestamp: serverTimestamp()
       });
-      ['rev-trading','rev-fac','rev-trabajo','rev-hab','rev-bien','rev-mal','rev-aprendi','rev-objetivos'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
-      flash('✓ Revisión semanal guardada con hábitos y estudio');
+      ['rev-trading','rev-fac','rev-trabajo','rev-hab','rev-bien','rev-mal','rev-aprendi','rev-objetivos']
+        .forEach(id => document.getElementById(id).value = '');
+      flash('✓ Revisión semanal guardada');
       setStatus('online');
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
   };
@@ -1874,7 +1834,7 @@
   };
 
   // ===============================
-  // TRACKER DE ESTUDIO POR MATERIA
+  // TRACKER ESTUDIO
   // ===============================
   const diasEstudio = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'];
   let materiasEstudioData = [];
@@ -1885,12 +1845,12 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     if (materias.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text-dim)">Agregá materias en las secciones de UBA/UP arriba</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" style="color:var(--text-dim)">Agregá materias en UBA/UP arriba</td></tr>';
       return;
     }
     materias.forEach(m => {
       const tr = document.createElement('tr');
-      const celdas = diasEstudio.map((d,i) =>
+      const celdas = diasEstudio.map((_,i) =>
         `<td style="text-align:center">
           <input type="number" min="0" max="12" step="0.5"
             id="est-${m.id}-${i}"
@@ -1901,16 +1861,11 @@
       ).join('');
       tr.innerHTML = `<td class="op-pair">${m.nombre}</td>${celdas}<td id="est-total-${m.id}" style="text-align:center;color:var(--green)">0h</td>`;
       tbody.appendChild(tr);
-
-      // Actualizar total en tiempo real
       diasEstudio.forEach((_,i) => {
         const input = document.getElementById(`est-${m.id}-${i}`);
         if (input) input.addEventListener('input', () => {
           let total = 0;
-          diasEstudio.forEach((_,j) => {
-            const v = parseFloat(document.getElementById(`est-${m.id}-${j}`)?.value) || 0;
-            total += v;
-          });
+          diasEstudio.forEach((_,j) => { total += parseFloat(document.getElementById(`est-${m.id}-${j}`)?.value) || 0; });
           const totalEl = document.getElementById(`est-total-${m.id}`);
           if (totalEl) totalEl.textContent = `${total}h`;
         });
@@ -1932,26 +1887,19 @@
           total += v;
         });
         if (total > 0) {
-          await addDoc(collection(db, 'estudio_semanal'), {
-            semana, materia: m.nombre, horas, total, timestamp: serverTimestamp()
-          });
+          await addDoc(collection(db, 'estudio_semanal'), { semana, materia: m.nombre, horas, total, timestamp: serverTimestamp() });
         }
       }
       flash('✓ Horas de estudio guardadas en Firebase');
       setStatus('online');
-      // Limpiar inputs
       materiasEstudioData.forEach(m => {
-        diasEstudio.forEach((_,i) => {
-          const inp = document.getElementById(`est-${m.id}-${i}`);
-          if (inp) inp.value = '';
-        });
+        diasEstudio.forEach((_,i) => { const inp = document.getElementById(`est-${m.id}-${i}`); if (inp) inp.value = ''; });
         const tot = document.getElementById(`est-total-${m.id}`);
         if (tot) tot.textContent = '0h';
       });
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
   };
 
-  // Cargar historial de estudio
   onSnapshot(query(collection(db, 'estudio_semanal'), orderBy('timestamp', 'desc')), snapshot => {
     const tbody = document.getElementById('estudio-historial-body');
     if (!tbody) return;
@@ -1971,34 +1919,19 @@
 
   window.eliminarMateria = async function(id, colName) {
     if (!confirm('¿Eliminar esta materia?')) return;
-    try {
-      await deleteDoc(doc(db, colName, id));
-      flash('✓ Materia eliminada');
-    } catch(e) { flash('Error: ' + e.message); }
+    try { await deleteDoc(doc(db, colName, id)); flash('✓ Materia eliminada'); } catch(e) { flash('Error: ' + e.message); }
   };
-
   window.eliminarExamen = async function(id) {
     if (!confirm('¿Eliminar este examen?')) return;
-    try {
-      await deleteDoc(doc(db, 'examenes', id));
-      flash('✓ Examen eliminado');
-    } catch(e) { flash('Error: ' + e.message); }
+    try { await deleteDoc(doc(db, 'examenes', id)); flash('✓ Examen eliminado'); } catch(e) { flash('Error: ' + e.message); }
   };
-
   window.eliminarHabito = async function(id) {
-    if (!confirm('¿Eliminar este hábito? Se perderá el historial de días marcados.')) return;
-    try {
-      await deleteDoc(doc(db, 'habitos', id));
-      flash('✓ Hábito eliminado');
-    } catch(e) { flash('Error: ' + e.message); }
+    if (!confirm('¿Eliminar este hábito?')) return;
+    try { await deleteDoc(doc(db, 'habitos', id)); flash('✓ Hábito eliminado'); } catch(e) { flash('Error: ' + e.message); }
   };
-
   window.eliminarTarea = async function(id) {
     if (!confirm('¿Eliminar esta tarea?')) return;
-    try {
-      await deleteDoc(doc(db, 'tareas', id));
-      flash('✓ Tarea eliminada');
-    } catch(e) { flash('Error: ' + e.message); }
+    try { await deleteDoc(doc(db, 'tareas', id)); flash('✓ Tarea eliminada'); } catch(e) { flash('Error: ' + e.message); }
   };
 
   // ===============================
@@ -2008,34 +1941,25 @@
 
   window.renderMesActual = function() {
     const now = new Date();
-    const mesActual = now.getMonth(); // 0-11
+    const mesActual = now.getMonth();
     const anioActual = now.getFullYear();
-    const mesNombre = mesesNombres[mesActual];
-
-    document.getElementById('mes-titulo').textContent = `${mesNombre.toUpperCase()} ${anioActual}`;
-
-    // Filtrar operaciones del mes actual
+    document.getElementById('mes-titulo').textContent = `${mesesNombres[mesActual].toUpperCase()} ${anioActual}`;
     const opsMes = allOps.filter(op => {
       if (!op.timestamp) return false;
       const d = op.timestamp.toDate ? op.timestamp.toDate() : new Date(op.timestamp);
       return d.getMonth() === mesActual && d.getFullYear() === anioActual;
     });
-
     const ganadas = opsMes.filter(o => o.estado === 'GANADA').length;
     const perdidas = opsMes.filter(o => o.estado === 'PERDIDA').length;
     const be = opsMes.filter(o => o.estado === 'BREAKEVEN').length;
     const total = ganadas + perdidas + be;
     const wr = total > 0 ? Math.round((ganadas/total)*100) : 0;
-
-    // Calcular P&L acumulado del mes
     let pnl = 0;
     opsMes.forEach(op => {
       const r = parseFloat((op.resultado || '0').replace('%','').replace('+',''));
       if (!isNaN(r)) pnl += r;
     });
     const pnlStr = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
-
-    // KPIs
     document.getElementById('mes-kpis').innerHTML = `
       <div class="card">
         <div class="card-header"><div class="card-title">TRADING P&L</div><span class="card-badge badge-green">MES</span></div>
@@ -2047,7 +1971,7 @@
         <div class="card-header"><div class="card-title">OPERACIONES</div><span class="card-badge badge-blue">TOTAL</span></div>
         <div class="metric-big">${total}</div>
         <div class="metric-label">Operaciones cerradas</div>
-        <div class="metric-change ${opsMes.filter(o=>o.estado==='ABIERTA').length > 0 ? 'up' : 'neutral'}">${opsMes.filter(o=>o.estado==='ABIERTA').length} abiertas</div>
+        <div class="metric-change neutral">${opsMes.filter(o=>o.estado==='ABIERTA').length} abiertas</div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title">HÁBITOS</div><span class="card-badge badge-green">MES</span></div>
@@ -2060,32 +1984,20 @@
         <div class="metric-label">Horas totales del mes</div>
       </div>
     `;
-
-    // Hábitos del mes — calcular % por hábito
-    renderHabitosMes(mesActual, anioActual);
-
-    // Estudio del mes
+    renderHabitosMes();
     renderEstudioMes(mesActual, anioActual);
-
-    // Historial de meses
     renderHistorialMeses();
   };
 
-  async function renderHabitosMes(mes, anio) {
+  function renderHabitosMes() {
     const container = document.getElementById('mes-habitos-desglose');
     if (!container) return;
-
-    // Usar habitosData que ya tenemos en memoria
     if (!habitosData || habitosData.length === 0) {
       container.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">No hay hábitos registrados.</div>';
       return;
     }
-
-    // Calcular % por hábito basado en días marcados
-    // Como los días se resetean semanalmente, usamos los datos actuales de la semana
     let totalCumplidos = 0, totalPosible = 0;
     let html = '';
-
     habitosData.forEach(h => {
       const dias = h.dias || [];
       const done = dias.filter(d => d === 'done').length;
@@ -2094,36 +2006,23 @@
       const pct = total > 0 ? Math.round((done/total)*100) : null;
       totalCumplidos += done;
       totalPosible += total;
-
       const pctStr = pct !== null ? pct + '%' : '—';
       const color = pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--yellow)' : pct !== null ? 'var(--red)' : 'var(--text-dim)';
       const fillClass = pct >= 75 ? 'fill-green' : pct >= 50 ? 'fill-yellow' : 'fill-red';
-      const width = pct !== null ? pct : 0;
-
-      html += `
-        <div class="progress-wrap">
-          <div class="progress-label">
-            <span>${h.nombre}</span>
-            <span style="color:${color}">${pctStr}</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${width}%"></div></div>
-        </div>`;
+      html += `<div class="progress-wrap">
+        <div class="progress-label"><span>${h.nombre}</span><span style="color:${color}">${pctStr}</span></div>
+        <div class="progress-bar"><div class="progress-fill ${fillClass}" style="width:${pct || 0}%"></div></div>
+      </div>`;
     });
-
     const pctGlobal = totalPosible > 0 ? Math.round((totalCumplidos/totalPosible)*100) : 0;
     const habPctEl = document.getElementById('mes-hab-pct');
-    if (habPctEl) {
-      habPctEl.textContent = pctGlobal + '%';
-      habPctEl.className = 'metric-big ' + (pctGlobal >= 75 ? 'up' : pctGlobal >= 50 ? 'neutral' : 'down');
-    }
-
+    if (habPctEl) { habPctEl.textContent = pctGlobal + '%'; habPctEl.className = 'metric-big ' + (pctGlobal >= 75 ? 'up' : pctGlobal >= 50 ? 'neutral' : 'down'); }
     container.innerHTML = html || '<div style="color:var(--text-dim);font-size:11px;">Sin datos esta semana.</div>';
   }
 
   async function renderEstudioMes(mes, anio) {
     const container = document.getElementById('mes-estudio-desglose');
     if (!container) return;
-
     try {
       const snap = await getDocs(collection(db, 'estudio_semanal'));
       const registros = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => {
@@ -2131,14 +2030,12 @@
         const d = r.timestamp.toDate ? r.timestamp.toDate() : new Date(r.timestamp);
         return d.getMonth() === mes && d.getFullYear() === anio;
       });
-
       if (registros.length === 0) {
         container.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">Sin horas registradas este mes.</div>';
-        document.getElementById('mes-est-total') && (document.getElementById('mes-est-total').textContent = '0hs');
+        const el = document.getElementById('mes-est-total');
+        if (el) el.textContent = '0hs';
         return;
       }
-
-      // Agrupar por materia
       const porMateria = {};
       let totalGlobal = 0;
       registros.forEach(r => {
@@ -2146,23 +2043,18 @@
         porMateria[r.materia] += parseFloat(r.total) || 0;
         totalGlobal += parseFloat(r.total) || 0;
       });
-
       let html = '';
       Object.entries(porMateria).sort((a,b) => b[1]-a[1]).forEach(([materia, hs]) => {
         const pct = totalGlobal > 0 ? Math.round((hs/totalGlobal)*100) : 0;
-        html += `
-          <div class="progress-wrap">
-            <div class="progress-label"><span>${materia}</span><span class="up">${hs}hs</span></div>
-            <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:${pct}%"></div></div>
-          </div>`;
+        html += `<div class="progress-wrap">
+          <div class="progress-label"><span>${materia}</span><span class="up">${hs}hs</span></div>
+          <div class="progress-bar"><div class="progress-fill fill-yellow" style="width:${pct}%"></div></div>
+        </div>`;
       });
-
       html += `<div style="margin-top:10px;font-size:10px;color:var(--text-dim);letter-spacing:1px;">TOTAL DEL MES: <span class="up">${totalGlobal}hs</span></div>`;
       container.innerHTML = html;
-
-      const estTotalEl = document.getElementById('mes-est-total');
-      if (estTotalEl) estTotalEl.textContent = totalGlobal + 'hs';
-
+      const el = document.getElementById('mes-est-total');
+      if (el) el.textContent = totalGlobal + 'hs';
     } catch(e) {
       container.innerHTML = '<div style="color:var(--red);font-size:11px;">Error cargando datos.</div>';
     }
@@ -2172,8 +2064,6 @@
     const tbody = document.getElementById('mes-historial-body');
     if (!tbody) return;
     tbody.innerHTML = '';
-
-    // Agrupar operaciones por mes
     const porMes = {};
     allOps.forEach(op => {
       if (!op.timestamp) return;
@@ -2187,8 +2077,6 @@
       const r = parseFloat((op.resultado||'0').replace('%','').replace('+',''));
       if (!isNaN(r)) porMes[key].pnl += r;
     });
-
-    // Agregar datos de estudio por mes
     try {
       const snapEst = await getDocs(collection(db, 'estudio_semanal'));
       snapEst.docs.forEach(d => {
@@ -2201,29 +2089,19 @@
         porMes[key].estudio += parseFloat(r.total) || 0;
       });
     } catch(e) {}
-
-    // Agregar datos de tareas por mes
-    try {
-      const snapTareas = await getDocs(collection(db, 'tareas'));
-      // Las tareas no tienen timestamp de mes fácilmente, las omitimos por ahora
-    } catch(e) {}
-
     const mesesOrdenados = Object.entries(porMes).sort((a,b) => b[0].localeCompare(a[0]));
-
     if (mesesOrdenados.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim)">Sin datos históricos aún.</td></tr>';
       return;
     }
-
     mesesOrdenados.forEach(([key, data]) => {
       const total = data.ganadas + data.perdidas + data.be;
       const wr = total > 0 ? Math.round((data.ganadas/total)*100) : 0;
       const pnlStr = (data.pnl >= 0 ? '+' : '') + data.pnl.toFixed(2) + '%';
-      const isPos = data.pnl >= 0;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="color:var(--text-bright);font-weight:500">${data.label}</td>
-        <td class="${isPos ? 'up' : 'down'}">${pnlStr}</td>
+        <td class="${data.pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
         <td class="${wr >= 50 ? 'up' : 'down'}">${wr}%</td>
         <td style="color:var(--text-dim)">—</td>
         <td class="up">${data.estudio ? data.estudio + 'hs' : '—'}</td>
@@ -2232,8 +2110,6 @@
       tbody.appendChild(tr);
     });
   }
-  window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
-  window.saveReflexion = function() { flash('Reflexión guardada'); };
 
   window.saveNote = function() { flash('Nota guardada localmente'); };
   window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
@@ -2243,7 +2119,6 @@
 </script>
 
 <script>
-// ---- CLOCK ----
 function updateClock() {
   const now = new Date();
   document.getElementById('clock').textContent =
@@ -2254,7 +2129,6 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// ---- NAVIGATION ----
 function showSection(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -2262,10 +2136,8 @@ function showSection(id, btn) {
   if (btn) btn.classList.add('active');
 }
 
-// ---- TAGS ----
 function toggleTag(el) { el.classList.toggle('active'); }
 
-// ---- DAY STATE ----
 function cycleDayState(el) {
   const states = ['', 'good', 'ok', 'bad'];
   const cur = states.findIndex(s => s && el.classList.contains(s));
@@ -2276,7 +2148,6 @@ function cycleDayState(el) {
   el.childNodes[1] && (el.childNodes[1].textContent = symbols[next] || '—');
 }
 
-// ---- FLASH ----
 function flash(msg) {
   const div = document.createElement('div');
   div.style.cssText = `
@@ -2292,7 +2163,6 @@ function flash(msg) {
   setTimeout(() => div.remove(), 2500);
 }
 
-// ---- WEEK NUMBER ----
 function getWeek(date) {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const dayNum = d.getUTCDay() || 7;
@@ -2301,7 +2171,6 @@ function getWeek(date) {
   return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
 }
 
-// Animate progress bars
 setTimeout(() => {
   document.querySelectorAll('.progress-fill').forEach(el => {
     const w = el.style.width;
