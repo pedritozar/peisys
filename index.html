@@ -494,6 +494,16 @@
     letter-spacing: 1px;
   }
 
+  .ticker-inner {
+  display: inline-flex;
+  animation: tickerScroll 60s linear infinite;
+  white-space: nowrap;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+@keyframes tickerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
   .ticker-item span { margin-left: 6px; }
 </style>
 </head>
@@ -519,16 +529,12 @@
 </header>
 
 <!-- TICKER -->
-<div class="ticker-strip" id="ticker">
-  <span class="ticker-item">XAU/USD <span class="up">▲ 2,045.30</span></span>
-  <span class="ticker-item">EUR/USD <span class="down">▼ 1.0856</span></span>
-  <span class="ticker-item">USD/JPY <span class="up">▲ 149.45</span></span>
-  <span class="ticker-item">GBP/USD <span class="down">▼ 1.2634</span></span>
-  <span class="ticker-item">AUD/USD <span class="up">▲ 0.6412</span></span>
-  <span class="ticker-item">CHF/JPY <span class="up">▲ 167.22</span></span>
-  <span class="ticker-item">BARRICK <span class="down">▼ 16.45</span></span>
-  <span class="ticker-item">US10Y <span class="up">▲ 4.21%</span></span>
+<div class="ticker-strip" id="ticker-strip">
+  <div class="ticker-inner" id="ticker">
+    <span style="color:var(--text-dim);font-size:10px;letter-spacing:2px;">⟳ CARGANDO PRECIOS...</span>
+  </div>
 </div>
+  
 
 <!-- NAVIGATION -->
 <nav class="nav">
@@ -1407,6 +1413,7 @@
     allOps.slice(0, 20).forEach(op => log.appendChild(renderOpLog(op)));
     updateTradingMetrics(allOps);
     renderOpsAbiertas(allOps);
+    if (typeof window.initTicker === 'function') window.initTicker(allOps);
     if (document.getElementById('meses').classList.contains('active')) renderMesActual();
     setStatus('online');
   }, (err) => {
@@ -2115,6 +2122,161 @@
   window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
   window.saveReflexion = function() { flash('Reflexión guardada'); };
 
+  // ==============================
+// TICKER LIVE — MULTI-SOURCE
+// ==============================
+
+const FINNHUB_KEY = 'cvs5d1hr01qhup0io700cvs5d1hr01qhup0io710mg';
+
+const WATCHLIST_BASE = [
+  { label: 'S&P 500',   source: 'finnhub', sym: 'SPY'           },
+  { label: 'NASDAQ',    source: 'finnhub', sym: 'QQQ'           },
+  { label: 'EUR/USD',   source: 'finnhub', sym: 'OANDA:EUR_USD' },
+  { label: 'USD/JPY',   source: 'finnhub', sym: 'OANDA:USD_JPY' },
+  { label: 'XAU/USD',   source: 'finnhub', sym: 'OANDA:XAU_USD' },
+  { label: 'BRENT',     source: 'finnhub', sym: 'OANDA:XBRUSD'  },
+  { label: 'DXY',       source: 'stooq',   sym: 'dxy'           },
+  { label: 'US10Y',     source: 'stooq',   sym: '10ys.b'        },
+  { label: 'CHINA A50', source: 'stooq',   sym: 'xin9'          },
+  { label: 'MOEX VIX',  source: 'moex',    sym: 'RTSVX'         },
+];
+
+const OP_SYMBOL_MAP = {
+  'EUR/USD':  { source: 'finnhub', sym: 'OANDA:EUR_USD'   },
+  'GBP/USD':  { source: 'finnhub', sym: 'OANDA:GBP_USD'   },
+  'USD/JPY':  { source: 'finnhub', sym: 'OANDA:USD_JPY'   },
+  'GBP/JPY':  { source: 'finnhub', sym: 'OANDA:GBP_JPY'   },
+  'AUD/USD':  { source: 'finnhub', sym: 'OANDA:AUD_USD'   },
+  'USD/CHF':  { source: 'finnhub', sym: 'OANDA:USD_CHF'   },
+  'CHF/JPY':  { source: 'finnhub', sym: 'OANDA:CHF_JPY'   },
+  'NZD/USD':  { source: 'finnhub', sym: 'OANDA:NZD_USD'   },
+  'EUR/JPY':  { source: 'finnhub', sym: 'OANDA:EUR_JPY'   },
+  'EUR/GBP':  { source: 'finnhub', sym: 'OANDA:EUR_GBP'   },
+  'USD/CAD':  { source: 'finnhub', sym: 'OANDA:USD_CAD'   },
+  'XAU/USD':  { source: 'finnhub', sym: 'OANDA:XAU_USD'   },
+  'XAG/USD':  { source: 'finnhub', sym: 'OANDA:XAG_USD'   },
+  'USD/OIL':  { source: 'finnhub', sym: 'OANDA:USOIL_USD' },
+  'WTI/USD':  { source: 'finnhub', sym: 'OANDA:USOIL_USD' },
+  'BRENT':    { source: 'finnhub', sym: 'OANDA:XBRUSD'    },
+  'TSLA':     { source: 'finnhub', sym: 'TSLA'            },
+  'AAPL':     { source: 'finnhub', sym: 'AAPL'            },
+  'NVDA':     { source: 'finnhub', sym: 'NVDA'            },
+  'SPY':      { source: 'finnhub', sym: 'SPY'             },
+  'QQQ':      { source: 'finnhub', sym: 'QQQ'             },
+};
+
+async function fetchFinnhub(symbol) {
+  try {
+    const r = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_KEY}`);
+    const d = await r.json();
+    return (d && d.c && d.c !== 0) ? { price: d.c, change: d.dp } : null;
+  } catch(e) { return null; }
+}
+
+async function fetchStooq(symbol) {
+  try {
+    const r = await fetch(`https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`, { mode: 'cors' });
+    const text = await r.text();
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return null;
+    const cols = lines[1].split(',');
+    const close = parseFloat(cols[6]);
+    const open = parseFloat(cols[3]);
+    if (!close || isNaN(close)) return null;
+    const changePct = open > 0 ? ((close - open) / open * 100) : null;
+    return { price: close, change: changePct };
+  } catch(e) { return null; }
+}
+
+async function fetchMOEX(symbol) {
+  try {
+    const url = `https://iss.moex.com/iss/engines/stock/markets/index/securities/${symbol}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=CURRENTVALUE,LASTVALUE,CHANGE`;
+    const r = await fetch(url, { mode: 'cors' });
+    const d = await r.json();
+    const data = d?.marketdata?.data;
+    if (!data || data.length === 0) return null;
+    const val = data[0][0] || data[0][1];
+    const change = data[0][2];
+    if (!val) return null;
+    return { price: val, change: change };
+  } catch(e) {
+    console.warn('MOEX no accesible:', e.message);
+    return null;
+  }
+}
+
+async function fetchPrice(item) {
+  switch(item.source) {
+    case 'finnhub': return fetchFinnhub(item.sym);
+    case 'stooq':   return fetchStooq(item.sym);
+    case 'moex':    return fetchMOEX(item.sym);
+    default:        return null;
+  }
+}
+
+function formatPrice(label, price) {
+  if (!price) return 'N/D';
+  const l = label.toUpperCase();
+  if (l === 'US10Y') return price.toFixed(2) + '%';
+  if (l.includes('JPY') || l === 'DXY' || l === 'S&P 500' || l === 'NASDAQ' || l === 'CHINA A50' || l === 'MOEX VIX') return price.toFixed(2);
+  if (l.includes('XAU') || l.includes('BRENT') || l.includes('OIL')) return price.toFixed(2);
+  return price.toFixed(4);
+}
+
+function renderTickerHTML(items) {
+  let html = '';
+  items.forEach(item => {
+    const priceStr = item.data ? formatPrice(item.label, item.data.price) : 'N/D';
+    const change = item.data?.change;
+    let colorClass = 'neutral';
+    let arrow = '◆';
+    if (item.fromOp && item.entrada != null && item.data) {
+      const isLong = item.tipo && item.tipo.includes('COMPRA');
+      const ganando = isLong ? item.data.price > item.entrada : item.data.price < item.entrada;
+      colorClass = ganando ? 'up' : 'down';
+      arrow = ganando ? '▲' : '▼';
+    } else if (item.data && change != null) {
+      colorClass = change >= 0 ? 'up' : 'down';
+      arrow = change >= 0 ? '▲' : '▼';
+    }
+    const changeStr = (change != null && !item.fromOp)
+      ? ` <span style="font-size:8px;opacity:0.7">(${change >= 0 ? '+' : ''}${change.toFixed(2)}%)</span>`
+      : '';
+    html += `<span class="ticker-item"><span class="ticker-label">${item.label}</span> <span class="${colorClass}">${arrow} ${priceStr}${changeStr}</span></span>`;
+  });
+  return html + html;
+}
+
+let tickerInterval = null;
+let lastOpsAbiertas = [];
+
+async function buildTicker(opsAbiertas) {
+  lastOpsAbiertas = opsAbiertas;
+  const tickerEl = document.getElementById('ticker');
+  if (!tickerEl) return;
+  let items = [];
+  if (opsAbiertas && opsAbiertas.length > 0) {
+    const vistos = new Set();
+    opsAbiertas.forEach(op => {
+      if (vistos.has(op.par)) return;
+      vistos.add(op.par);
+      const mapped = OP_SYMBOL_MAP[op.par.toUpperCase()];
+      if (mapped) items.push({ label: op.par, ...mapped, fromOp: true, entrada: parseFloat(op.entrada) || null, tipo: op.tipo || '' });
+    });
+    WATCHLIST_BASE.forEach(w => { if (!items.find(i => i.label === w.label)) items.push({ ...w, fromOp: false }); });
+  } else {
+    items = WATCHLIST_BASE.map(w => ({ ...w, fromOp: false }));
+  }
+  const results = await Promise.all(items.map(async item => ({ ...item, data: await fetchPrice(item) })));
+  tickerEl.innerHTML = renderTickerHTML(results);
+}
+
+window.initTicker = function(ops) {
+  const abiertas = ops.filter(o => o.estado === 'ABIERTA');
+  buildTicker(abiertas);
+  if (tickerInterval) clearInterval(tickerInterval);
+  tickerInterval = setInterval(() => buildTicker(lastOpsAbiertas), 30000);
+};
   setStatus('online');
 </script>
 
