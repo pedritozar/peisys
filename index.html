@@ -2175,7 +2175,8 @@ async function fetchFinnhub(symbol) {
 
 async function fetchStooq(symbol) {
   try {
-    const r = await fetch(`https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`, { mode: 'cors' });
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`)}`;
+const r = await fetch(proxyUrl);
     const text = await r.text();
     const lines = text.trim().split('\n');
     if (lines.length < 2) return null;
