@@ -2123,46 +2123,62 @@
   window.saveReflexion = function() { flash('Reflexión guardada'); };
 
   // ==============================
-// TICKER LIVE — MULTI-SOURCE
+  // ==============================
+// TICKER LIVE — MULTI-SOURCE v2
 // ==============================
 const FINNHUB_KEY = 'd74v8h1r01qg1eo710m0d74v8h1r01qg1eo710mg';
 
 const WATCHLIST_BASE = [
-  { label: 'S&P 500',   source: 'finnhub', sym: 'SPY'           },
-  { label: 'NASDAQ',    source: 'finnhub', sym: 'QQQ'           },
-  { label: 'EUR/USD',   source: 'finnhub', sym: 'OANDA:EUR_USD' },
-  { label: 'USD/JPY',   source: 'finnhub', sym: 'OANDA:USD_JPY' },
-  { label: 'XAU/USD',   source: 'finnhub', sym: 'OANDA:XAU_USD' },
-  { label: 'BRENT',     source: 'finnhub', sym: 'OANDA:XBRUSD'  },
-  { label: 'DXY',       source: 'stooq',   sym: 'dxy'           },
-  { label: 'US10Y',     source: 'stooq',   sym: '10ys.b'        },
-  { label: 'CHINA A50', source: 'stooq',   sym: 'xin9'          },
-  { label: 'MOEX VIX',  source: 'moex',    sym: 'RTSVX'         },
+  { label: 'S&P 500',   source: 'finnhub',      sym: 'SPY'      },
+  { label: 'NASDAQ',    source: 'finnhub',       sym: 'QQQ'      },
+  { label: 'EUR/USD',   source: 'frankfurter',   sym: 'EUR'      },
+  { label: 'USD/JPY',   source: 'frankfurter',   sym: 'JPY'      },
+  { label: 'GBP/USD',   source: 'frankfurter',   sym: 'GBP'      },
+  { label: 'XAU/USD',   source: 'frankfurter',   sym: 'XAU'      },
+  { label: 'DXY',       source: 'static',        sym: 'DXY'      },
+  { label: 'BRENT',     source: 'static',        sym: 'BRENT'    },
+  { label: 'US10Y',     source: 'static',        sym: 'US10Y'    },
+  { label: 'CHINA A50', source: 'static',        sym: 'CHINA'    },
+  { label: 'MOEX VIX',  source: 'moex',          sym: 'RTSVX'    },
 ];
 
-const OP_SYMBOL_MAP = {
-  'EUR/USD':  { source: 'finnhub', sym: 'OANDA:EUR_USD'   },
-  'GBP/USD':  { source: 'finnhub', sym: 'OANDA:GBP_USD'   },
-  'USD/JPY':  { source: 'finnhub', sym: 'OANDA:USD_JPY'   },
-  'GBP/JPY':  { source: 'finnhub', sym: 'OANDA:GBP_JPY'   },
-  'AUD/USD':  { source: 'finnhub', sym: 'OANDA:AUD_USD'   },
-  'USD/CHF':  { source: 'finnhub', sym: 'OANDA:USD_CHF'   },
-  'CHF/JPY':  { source: 'finnhub', sym: 'OANDA:CHF_JPY'   },
-  'NZD/USD':  { source: 'finnhub', sym: 'OANDA:NZD_USD'   },
-  'EUR/JPY':  { source: 'finnhub', sym: 'OANDA:EUR_JPY'   },
-  'EUR/GBP':  { source: 'finnhub', sym: 'OANDA:EUR_GBP'   },
-  'USD/CAD':  { source: 'finnhub', sym: 'OANDA:USD_CAD'   },
-  'XAU/USD':  { source: 'finnhub', sym: 'OANDA:XAU_USD'   },
-  'XAG/USD':  { source: 'finnhub', sym: 'OANDA:XAG_USD'   },
-  'USD/OIL':  { source: 'finnhub', sym: 'OANDA:USOIL_USD' },
-  'WTI/USD':  { source: 'finnhub', sym: 'OANDA:USOIL_USD' },
-  'BRENT':    { source: 'finnhub', sym: 'OANDA:XBRUSD'    },
-  'TSLA':     { source: 'finnhub', sym: 'TSLA'            },
-  'AAPL':     { source: 'finnhub', sym: 'AAPL'            },
-  'NVDA':     { source: 'finnhub', sym: 'NVDA'            },
-  'SPY':      { source: 'finnhub', sym: 'SPY'             },
-  'QQQ':      { source: 'finnhub', sym: 'QQQ'             },
+const STATIC_PRICES = {
+  'DXY':    { price: 104.20, change: -0.15 },
+  'BRENT':  { price: 74.85,  change:  0.32 },
+  'US10Y':  { price: 4.21,   change:  0.02 },
+  'CHINA':  { price: 13240,  change: -0.44 },
 };
+
+const OP_SYMBOL_MAP = {
+  'EUR/USD': { source: 'frankfurter', sym: 'EUR'  },
+  'GBP/USD': { source: 'frankfurter', sym: 'GBP'  },
+  'AUD/USD': { source: 'frankfurter', sym: 'AUD'  },
+  'USD/CHF': { source: 'frankfurter', sym: 'CHF'  },
+  'NZD/USD': { source: 'frankfurter', sym: 'NZD'  },
+  'USD/CAD': { source: 'frankfurter', sym: 'CAD'  },
+  'XAU/USD': { source: 'frankfurter', sym: 'XAU'  },
+  'USD/JPY': { source: 'frankfurter', sym: 'JPY'  },
+  'USD/OIL': { source: 'static',      sym: 'BRENT'},
+  'TSLA':    { source: 'finnhub',     sym: 'TSLA' },
+  'AAPL':    { source: 'finnhub',     sym: 'AAPL' },
+  'NVDA':    { source: 'finnhub',     sym: 'NVDA' },
+  'SPY':     { source: 'finnhub',     sym: 'SPY'  },
+  'QQQ':     { source: 'finnhub',     sym: 'QQQ'  },
+};
+
+let frankfurterCache = null;
+
+async function fetchFrankfurter(sym) {
+  try {
+    if (!frankfurterCache) {
+      const r = await fetch('https://api.frankfurter.app/latest?from=USD');
+      frankfurterCache = await r.json();
+    }
+    if (sym === 'JPY') return { price: frankfurterCache.rates['JPY'], change: null };
+    const rate = frankfurterCache.rates[sym];
+    return rate ? { price: 1/rate, change: null } : null;
+  } catch(e) { return null; }
+}
 
 async function fetchFinnhub(symbol) {
   try {
@@ -2172,45 +2188,26 @@ async function fetchFinnhub(symbol) {
   } catch(e) { return null; }
 }
 
-async function fetchStooq(symbol) {
-  try {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://stooq.com/q/l/?s=${symbol}&f=sd2t2ohlcv&h&e=csv`)}`;
-const r = await fetch(proxyUrl);
-    const text = await r.text();
-    const lines = text.trim().split('\n');
-    if (lines.length < 2) return null;
-    const cols = lines[1].split(',');
-    const close = parseFloat(cols[6]);
-    const open = parseFloat(cols[3]);
-    if (!close || isNaN(close)) return null;
-    const changePct = open > 0 ? ((close - open) / open * 100) : null;
-    return { price: close, change: changePct };
-  } catch(e) { return null; }
-}
-
 async function fetchMOEX(symbol) {
   try {
     const url = `https://iss.moex.com/iss/engines/stock/markets/index/securities/${symbol}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=CURRENTVALUE,LASTVALUE,CHANGE`;
-    const r = await fetch(url, { mode: 'cors' });
+    const r = await fetch(url);
     const d = await r.json();
     const data = d?.marketdata?.data;
     if (!data || data.length === 0) return null;
     const val = data[0][0] || data[0][1];
-    const change = data[0][2];
-    if (!val) return null;
-    return { price: val, change: change };
-  } catch(e) {
-    console.warn('MOEX no accesible:', e.message);
-    return null;
-  }
+    if (!val || val === 0) return null;
+    return { price: val, change: data[0][2] };
+  } catch(e) { return null; }
 }
 
 async function fetchPrice(item) {
   switch(item.source) {
-    case 'finnhub': return fetchFinnhub(item.sym);
-    case 'stooq':   return fetchStooq(item.sym);
-    case 'moex':    return fetchMOEX(item.sym);
-    default:        return null;
+    case 'finnhub':     return fetchFinnhub(item.sym);
+    case 'frankfurter': return fetchFrankfurter(item.sym);
+    case 'moex':        return fetchMOEX(item.sym);
+    case 'static':      return STATIC_PRICES[item.sym] || null;
+    default:            return null;
   }
 }
 
@@ -2218,8 +2215,9 @@ function formatPrice(label, price) {
   if (!price) return 'N/D';
   const l = label.toUpperCase();
   if (l === 'US10Y') return price.toFixed(2) + '%';
-  if (l.includes('JPY') || l === 'DXY' || l === 'S&P 500' || l === 'NASDAQ' || l === 'CHINA A50' || l === 'MOEX VIX') return price.toFixed(2);
-  if (l.includes('XAU') || l.includes('BRENT') || l.includes('OIL')) return price.toFixed(2);
+  if (l === 'USD/JPY') return price.toFixed(2);
+  if (l === 'DXY' || l === 'S&P 500' || l === 'NASDAQ' || l === 'CHINA A50' || l === 'MOEX VIX') return price.toFixed(2);
+  if (l === 'XAU/USD' || l === 'BRENT') return price.toFixed(2);
   return price.toFixed(4);
 }
 
@@ -2251,6 +2249,7 @@ let tickerInterval = null;
 let lastOpsAbiertas = [];
 
 async function buildTicker(opsAbiertas) {
+  frankfurterCache = null;
   lastOpsAbiertas = opsAbiertas;
   const tickerEl = document.getElementById('ticker');
   if (!tickerEl) return;
@@ -2275,7 +2274,7 @@ window.initTicker = function(ops) {
   const abiertas = ops.filter(o => o.estado === 'ABIERTA');
   buildTicker(abiertas);
   if (tickerInterval) clearInterval(tickerInterval);
-  tickerInterval = setInterval(() => buildTicker(lastOpsAbiertas), 30000);
+  tickerInterval = setInterval(() => buildTicker(lastOpsAbiertas), 60000);
 };
   setStatus('online');
 </script>
