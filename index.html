@@ -775,7 +775,58 @@
         <div style="color:var(--text-dim);font-size:11px;">No hay operaciones abiertas.</div>
       </div>
     </div>
+<div class="grid-2" style="margin-bottom:16px;">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">EQUITY CURVE — P&L ACUMULADO</div>
+      <span class="card-badge badge-green">EN VIVO</span>
+    </div>
+    <svg id="equity-svg" width="100%" height="120" viewBox="0 0 400 120" preserveAspectRatio="none" style="display:block;">
+      <defs>
+        <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#00ff88" stop-opacity="0.2"/>
+          <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <line x1="0" y1="60" x2="400" y2="60" stroke="#1e2d3d" stroke-width="1"/>
+      <text x="4" y="14" fill="#5a7a90" font-size="9" font-family="monospace">+</text>
+      <text x="4" y="110" fill="#5a7a90" font-size="9" font-family="monospace">−</text>
+      <polyline id="equity-line" points="0,60" fill="none" stroke="#00ff88" stroke-width="2"/>
+      <polygon id="equity-area" points="0,60" fill="url(#eqGrad)"/>
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-dim);margin-top:4px;" id="equity-labels"></div>
+  </div>
 
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">WIN RATE</div>
+      <span class="card-badge badge-green">TOTAL</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#1e2d3d" stroke-width="12"/>
+        <circle id="wr-circle" cx="50" cy="50" r="40" fill="none" stroke="#00ff88" stroke-width="12"
+          stroke-dasharray="0 251" stroke-dashoffset="63" stroke-linecap="round"
+          style="transition:stroke-dasharray 1s ease;"/>
+        <text id="wr-text" x="50" y="55" text-anchor="middle" fill="#e8f4ff" font-size="16" font-family="monospace" font-weight="600">0%</text>
+      </svg>
+      <div style="flex:1;">
+        <div style="margin-bottom:10px;">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;">GANADAS</div>
+          <div style="font-size:22px;color:var(--green)" id="wr-won">0</div>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;">PERDIDAS</div>
+          <div style="font-size:22px;color:var(--red)" id="wr-lost">0</div>
+        </div>
+        <div>
+          <div style="font-size:9px;color:var(--text-dim);letter-spacing:1px;">MAX DRAWDOWN</div>
+          <div style="font-size:16px;color:var(--yellow)" id="wr-dd">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
     <div class="card">
       <div class="card-header">
         <div class="card-title">PRE-SESIÓN — PLAN DE TRADING HOY</div>
@@ -1412,7 +1463,7 @@
     log.innerHTML = '';
     allOps.slice(0, 20).forEach(op => log.appendChild(renderOpLog(op)));
     updateTradingMetrics(allOps);
-    renderOpsAbiertas(allOps);
+    renderOpsAbiertas(allOps); renderEquityCurve(allOps);
     if (typeof window.initTicker === 'function') window.initTicker(allOps);
     if (document.getElementById('meses').classList.contains('active')) renderMesActual();
     setStatus('online');
@@ -2117,7 +2168,57 @@
       tbody.appendChild(tr);
     });
   }
+// ===============================
+// EQUITY CURVE + WIN RATE
+// ===============================
+function renderEquityCurve(ops) {
+  const cerradas = ops.filter(o => o.estado !== 'ABIERTA' && o.resultado)
+    .sort((a, b) => (a.timestamp?.toMillis?.() || 0) - (b.timestamp?.toMillis?.() || 0));
+  if (cerradas.length === 0) return;
+  let acum = 0, max = 0, min = 0, maxDD = 0;
+  const puntos = [{ y: 0 }];
+  cerradas.forEach(op => {
+    const r = parseFloat((op.resultado || '0').replace('%','').replace('+',''));
+    if (!isNaN(r)) {
+      acum += r;
+      if (acum > max) max = acum;
+      const dd = max - acum;
+      if (dd > maxDD) maxDD = dd;
+      if (acum < min) min = acum;
+      puntos.push({ y: acum, label: op.par || '' });
+    }
+  });
+  const W = 400, H = 120, PAD = 10;
+  const rango = Math.max(Math.abs(max), Math.abs(min), 1);
+  const escala = (H/2 - PAD) / rango;
+  const paso = (W - PAD*2) / Math.max(puntos.length - 1, 1);
+  const coords = puntos.map((p, i) => ({ x: PAD + i * paso, y: H/2 - p.y * escala }));
+  const linePoints = coords.map(c => `${c.x},${c.y}`).join(' ');
+  const areaPoints = `${coords[0].x},${H/2} ` + coords.map(c => `${c.x},${c.y}`).join(' ') + ` ${coords[coords.length-1].x},${H/2}`;
+  const lineEl = document.getElementById('equity-line');
+  const areaEl = document.getElementById('equity-area');
+  if (lineEl) { lineEl.setAttribute('points', linePoints); lineEl.setAttribute('stroke', puntos[puntos.length-1].y >= 0 ? '#00ff88' : '#ff4466'); }
+  if (areaEl) areaEl.setAttribute('points', areaPoints);
+  const labelsEl = document.getElementById('equity-labels');
+  if (labelsEl) labelsEl.innerHTML = cerradas.slice(-5).map(op => `<span>${op.par || ''}</span>`).join('');
+  const won = ops.filter(o => o.estado === 'GANADA').length;
+  const lost = ops.filter(o => o.estado === 'PERDIDA').length;
+  const total = won + lost;
+  const wr = total > 0 ? Math.round((won/total)*100) : 0;
+  const circ = 251, dash = (wr/100)*circ;
+  const wrCircle = document.getElementById('wr-circle');
+  const wrText = document.getElementById('wr-text');
+  if (wrCircle) { wrCircle.setAttribute('stroke-dasharray', `${dash} ${circ-dash}`); wrCircle.setAttribute('stroke', wr >= 50 ? '#00ff88' : '#ff4466'); }
+  if (wrText) { wrText.textContent = wr + '%'; wrText.setAttribute('fill', wr >= 50 ? '#00ff88' : '#ff4466'); }
+  const wrWon = document.getElementById('wr-won'); if (wrWon) wrWon.textContent = won;
+  const wrLost = document.getElementById('wr-lost'); if (wrLost) wrLost.textContent = lost;
+  const wrDD = document.getElementById('wr-dd'); if (wrDD) wrDD.textContent = '-' + maxDD.toFixed(2) + '%';
+}
+```
 
+Luego buscá:
+```
+updateTradingMetrics(allOps);
   window.saveNote = function() { flash('Nota guardada localmente'); };
   window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
   window.saveReflexion = function() { flash('Reflexión guardada'); };
