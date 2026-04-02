@@ -2147,6 +2147,7 @@ const STATIC_PRICES = {
   'BRENT':  { price: 74.85,  change:  0.32 },
   'US10Y':  { price: 4.21,   change:  0.02 },
   'CHINA':  { price: 13240,  change: -0.44 },
+  'XAU': { price: 3115.00, change: 0.45 },
 };
 
 const OP_SYMBOL_MAP = {
@@ -2156,7 +2157,7 @@ const OP_SYMBOL_MAP = {
   'USD/CHF': { source: 'frankfurter', sym: 'CHF'  },
   'NZD/USD': { source: 'frankfurter', sym: 'NZD'  },
   'USD/CAD': { source: 'frankfurter', sym: 'CAD'  },
-  'XAU/USD': { source: 'frankfurter', sym: 'XAU'  },
+  'XAU/USD': { source: 'static',      sym: 'XAU'  },
   'USD/JPY': { source: 'frankfurter', sym: 'JPY'  },
   'USD/OIL': { source: 'static',      sym: 'BRENT'},
   'TSLA':    { source: 'finnhub',     sym: 'TSLA' },
@@ -2190,14 +2191,15 @@ async function fetchFinnhub(symbol) {
 
 async function fetchMOEX(symbol) {
   try {
-    const url = `https://iss.moex.com/iss/engines/stock/markets/index/securities/${symbol}.json?iss.meta=off&iss.only=marketdata&marketdata.columns=CURRENTVALUE,LASTVALUE,CHANGE`;
+    const url = `https://iss.moex.com/iss/history/engines/stock/markets/index/securities/${symbol}.json?iss.meta=off&iss.only=history&history.columns=TRADEDATE,CLOSE&limit=1&sort_order=desc`;
     const r = await fetch(url);
+    if (!r.ok) return null;
     const d = await r.json();
-    const data = d?.marketdata?.data;
+    const data = d?.history?.data;
     if (!data || data.length === 0) return null;
-    const val = data[0][0] || data[0][1];
-    if (!val || val === 0) return null;
-    return { price: val, change: data[0][2] };
+    const close = data[0][1];
+    if (!close || close === 0) return null;
+    return { price: close, change: null };
   } catch(e) { return null; }
 }
 
