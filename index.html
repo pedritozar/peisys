@@ -1463,7 +1463,8 @@
     log.innerHTML = '';
     allOps.slice(0, 20).forEach(op => log.appendChild(renderOpLog(op)));
     updateTradingMetrics(allOps);
-    renderOpsAbiertas(allOps); renderEquityCurve(allOps);
+    renderOpsAbiertas(allOps);
+if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
     if (typeof window.initTicker === 'function') window.initTicker(allOps);
     if (document.getElementById('meses').classList.contains('active')) renderMesActual();
     setStatus('online');
