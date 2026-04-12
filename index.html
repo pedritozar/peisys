@@ -1445,7 +1445,11 @@
         fechaCierre: new Date().toLocaleDateString('es-AR')
       }, { merge: true });
       flash(`✓ Operación cerrada — ${label}`);
-      setStatus('online');
+      window.saveNote = function() { flash('Nota guardada localmente'); };
+  window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
+  window.saveReflexion = function() { flash('Reflexión guardada'); };
+  setStatus('online');
+</script>
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
   };
 
@@ -2214,16 +2218,6 @@ function renderEquityCurve(ops) {
   const wrWon = document.getElementById('wr-won'); if (wrWon) wrWon.textContent = won;
   const wrLost = document.getElementById('wr-lost'); if (wrLost) wrLost.textContent = lost;
   const wrDD = document.getElementById('wr-dd'); if (wrDD) wrDD.textContent = '-' + maxDD.toFixed(2) + '%';
-}
-```
-
-Luego buscá:
-```
-updateTradingMetrics(allOps);
-  window.saveNote = function() { flash('Nota guardada localmente'); };
-  window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
-  window.saveReflexion = function() { flash('Reflexión guardada'); };
-
   // ==============================
   // ==============================
 // TICKER LIVE — MULTI-SOURCE v2
