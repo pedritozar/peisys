@@ -1085,6 +1085,7 @@
           <input type="text" class="input-field" id="hab-nombre" placeholder="Judo, Lectura, Trading review...">
         </div>
         <button class="btn btn-green btn-sm" onclick="addHabito()">+ AGREGAR HÁBITO</button>
+        <button class="btn btn-sm" style="border-color:var(--yellow);color:var(--yellow);margin-top:8px;width:100%;" onclick="resetSemanaHabitos()">↺ INICIAR NUEVA SEMANA</button>
       </div>
 
       <div class="card">
@@ -1582,7 +1583,7 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
       const div = document.createElement('div');
       div.className = 'habit-row';
       div.innerHTML = `
-        <span class="habit-name">${h.nombre}</span>
+        <span class="habit-name">${h.nombre}</span><span style="font-size:9px;color:var(--yellow);letter-spacing:1px;">${(() => { const dias = h.dias || []; let racha = 0; for (let i = dias.length - 1; i >= 0; i--) { if (dias[i] === 'done') racha++; else break; } return racha > 0 ? '🔥'.repeat(Math.min(racha,3)) + ' ' + racha + 'd' : ''; })()}</span>
         <div class="habit-dots">
           ${dots.map((d, i) => `<div class="habit-dot ${d === 'done' ? 'done' : d === 'miss' ? 'miss' : ''}"
             onclick="toggleHabitFS('${h.id}', ${i})"></div>`).join('')}
@@ -1992,6 +1993,18 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
     if (!confirm('¿Eliminar este hábito?')) return;
     try { await deleteDoc(doc(db, 'habitos', id)); flash('✓ Hábito eliminado'); } catch(e) { flash('Error: ' + e.message); }
   };
+  window.resetSemanaHabitos = async function() {
+    if (!confirm('¿Iniciar nueva semana? Se borrarán todos los dots de hábitos.')) return;
+    setStatus('syncing');
+    try {
+      for (const h of habitosData) {
+        await setDoc(doc(db, 'habitos', h.id), { dias: [false,false,false,false,false,false,false] }, { merge: true });
+      }
+      flash('✓ Nueva semana iniciada — hábitos reseteados');
+      setStatus('online');
+    } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
+  };
+
   window.eliminarTarea = async function(id) {
     if (!confirm('¿Eliminar esta tarea?')) return;
     try { await deleteDoc(doc(db, 'tareas', id)); flash('✓ Tarea eliminada'); } catch(e) { flash('Error: ' + e.message); }
