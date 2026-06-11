@@ -827,6 +827,21 @@
     </div>
   </div>
 </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">HISTORIAL SEMANAL DE TRADING</div>
+        <button class="btn btn-sm" style="border-color:var(--yellow);color:var(--yellow);" onclick="cerrarSemanaTrading()">↺ CERRAR SEMANA</button>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr><th>SEMANA</th><th>P&L</th><th>WIN RATE</th><th>GANADAS</th><th>PERDIDAS</th><th>BE</th></tr>
+        </thead>
+        <tbody id="ops-semanas-body">
+          <tr><td colspan="6" style="color:var(--text-dim)">Sin semanas archivadas aún.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <div class="card-title">PRE-SESIÓN — PLAN DE TRADING HOY</div>
@@ -1466,7 +1481,7 @@
     ovBody.innerHTML = allOps.slice(0, 10).map(renderOpRow).join('');
     const log = document.getElementById('t-oplog');
     log.innerHTML = '';
-    allOps.slice(0, 20).forEach(op => log.appendChild(renderOpLog(op)));
+    allOps.filter(o => !o.archivada).slice(0, 30).forEach(op => log.appendChild(renderOpLog(op)));
     updateTradingMetrics(allOps);
     renderOpsAbiertas(allOps);
 if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
@@ -2005,6 +2020,66 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
   };
 
+  window.cerrarSemanaTrading = async function() {
+    const now = new Date();
+    const getW = (date) => {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dn = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dn);
+      const ys = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      return Math.ceil((((d - ys) / 86400000) + 1)/7);
+    };
+    const semana = `Sem ${getW(now)}/${now.getFullYear()}`;
+    const opsActuales = allOps.filter(o => !o.archivada && o.estado !== 'ABIERTA');
+    if (opsActuales.length === 0) { flash('No hay operaciones cerradas para archivar'); return; }
+    if (!confirm(`¿Cerrar semana ${semana}? Se archivarán ${opsActuales.length} operaciones.`)) return;
+    const won = opsActuales.filter(o => o.estado === 'GANADA').length;
+    const lost = opsActuales.filter(o => o.estado === 'PERDIDA').length;
+    const be = opsActuales.filter(o => o.estado === 'BREAKEVEN').length;
+    const total = won + lost + be;
+    const wr = total > 0 ? Math.round((won/total)*100) : 0;
+    let pnl = 0;
+    opsActuales.forEach(op => {
+      const r = parseFloat((op.resultado||'0').replace('%','').replace('+',''));
+      if (!isNaN(r)) pnl += r;
+    });
+    setStatus('syncing');
+    try {
+      await addDoc(collection(db, 'ops_semanas'), {
+        semana, ganadas: won, perdidas: lost, be, totalOps: total,
+        pnl: parseFloat(pnl.toFixed(2)), winRate: wr, timestamp: serverTimestamp()
+      });
+      for (const op of opsActuales) {
+        await setDoc(doc(db, 'operaciones', op.id), { archivada: true }, { merge: true });
+      }
+      flash(`✓ Semana ${semana} cerrada — ${total} ops archivadas`);
+      setStatus('online');
+    } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
+  };
+
+  onSnapshot(query(collection(db, 'ops_semanas'), orderBy('timestamp', 'desc')), snapshot => {
+    const tbody = document.getElementById('ops-semanas-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (snapshot.empty) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-dim)">Sin semanas archivadas aún.</td></tr>';
+      return;
+    }
+    snapshot.docs.map(d => ({ id: d.id, ...d.data() })).forEach(r => {
+      const pnlStr = (r.pnl >= 0 ? '+' : '') + (r.pnl || 0).toFixed(2) + '%';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:var(--text-dim)">${r.semana || '—'}</td>
+        <td class="${r.pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
+        <td class="${r.winRate >= 50 ? 'up' : 'down'}">${r.winRate || 0}%</td>
+        <td style="color:var(--green)">${r.ganadas || 0}</td>
+        <td style="color:var(--red)">${r.perdidas || 0}</td>
+        <td style="color:var(--yellow)">${r.be || 0}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+
   window.eliminarTarea = async function(id) {
     if (!confirm('¿Eliminar esta tarea?')) return;
     try { await deleteDoc(doc(db, 'tareas', id)); flash('✓ Tarea eliminada'); } catch(e) { flash('Error: ' + e.message); }
@@ -2153,6 +2228,21 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
       const r = parseFloat((op.resultado||'0').replace('%','').replace('+',''));
       if (!isNaN(r)) porMes[key].pnl += r;
     });
+    // Hábitos % promedio mensual desde revisiones
+    try {
+      const snapRev = await getDocs(collection(db, 'revisiones'));
+      snapRev.docs.forEach(d => {
+        const r = d.data();
+        if (!r.timestamp) return;
+        const fecha = r.timestamp.toDate ? r.timestamp.toDate() : new Date(r.timestamp);
+        const key = `${fecha.getFullYear()}-${String(fecha.getMonth()).padStart(2,'0')}`;
+        if (!porMes[key]) porMes[key] = { label: `${mesesNombres[fecha.getMonth()]} ${fecha.getFullYear()}`, ganadas:0, perdidas:0, be:0, pnl:0 };
+        if (!porMes[key].habArr) porMes[key].habArr = [];
+        const habVal = parseInt(r.hab);
+        if (!isNaN(habVal)) porMes[key].habArr.push(habVal);
+      });
+    } catch(e) {}
+
     try {
       const snapEst = await getDocs(collection(db, 'estudio_semanal'));
       snapEst.docs.forEach(d => {
@@ -2179,7 +2269,7 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
         <td style="color:var(--text-bright);font-weight:500">${data.label}</td>
         <td class="${data.pnl >= 0 ? 'up' : 'down'}">${pnlStr}</td>
         <td class="${wr >= 50 ? 'up' : 'down'}">${wr}%</td>
-        <td style="color:var(--text-dim)">—</td>
+        <td class="${data.habArr && data.habArr.length > 0 ? (Math.round(data.habArr.reduce((a,b)=>a+b,0)/data.habArr.length) >= 60 ? 'up' : 'neutral') : ''}">${data.habArr && data.habArr.length > 0 ? Math.round(data.habArr.reduce((a,b)=>a+b,0)/data.habArr.length) + '%' : '—'}</td>
         <td class="up">${data.estudio ? data.estudio + 'hs' : '—'}</td>
         <td style="color:var(--text-dim)">—</td>
       `;
