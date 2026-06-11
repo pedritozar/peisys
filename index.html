@@ -1123,6 +1123,11 @@
           <textarea class="input-field" id="hab-reflexion" placeholder="¿Cómo estuvo el día? ¿Qué mejorar?"></textarea>
         </div>
         <button class="btn btn-green btn-sm" onclick="saveReflexion()">GUARDAR REFLEXIÓN</button>
+        <div class="divider"></div>
+        <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:10px;">HISTORIAL DE REFLEXIONES</div>
+        <ul class="op-log" id="reflexiones-list" style="max-height:240px;">
+          <div style="color:var(--text-dim);font-size:11px;">Sin reflexiones guardadas aún.</div>
+        </ul>
       </div>
     </div>
   </section>
@@ -1463,7 +1468,21 @@
       flash(`✓ Operación cerrada — ${label}`);
       window.saveNote = function() { flash('Nota guardada localmente'); };
   window.saveObjetivo = function() { flash('Objetivo guardado localmente'); };
-  window.saveReflexion = function() { flash('Reflexión guardada'); };
+  window.saveReflexion = async function() {
+    const texto = document.getElementById('hab-reflexion').value.trim();
+    if (!texto) { flash('Escribí algo antes de guardar'); return; }
+    const fecha = new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'});
+    const fechaKey = new Date().toISOString().split('T')[0];
+    setStatus('syncing');
+    try {
+      await setDoc(doc(db, 'reflexiones', fechaKey), {
+        texto, fecha, timestamp: serverTimestamp()
+      }, { merge: true });
+      document.getElementById('hab-reflexion').value = '';
+      flash('✓ Reflexión guardada en Firebase');
+      setStatus('online');
+    } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
+  };
   setStatus('online');
       
     } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
@@ -2008,6 +2027,27 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
     if (!confirm('¿Eliminar este hábito?')) return;
     try { await deleteDoc(doc(db, 'habitos', id)); flash('✓ Hábito eliminado'); } catch(e) { flash('Error: ' + e.message); }
   };
+  onSnapshot(query(collection(db, 'reflexiones'), orderBy('timestamp', 'desc')), snapshot => {
+    const list = document.getElementById('reflexiones-list');
+    if (!list) return;
+    list.innerHTML = '';
+    if (snapshot.empty) {
+      list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">Sin reflexiones guardadas aún.</div>';
+      return;
+    }
+    snapshot.docs.map(d => ({ id: d.id, ...d.data() })).forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'op-item';
+      li.style.flexDirection = 'column';
+      li.style.alignItems = 'flex-start';
+      li.style.gap = '4px';
+      li.innerHTML =
+        '<span style="font-size:9px;color:var(--green);letter-spacing:1px;">' + (r.fecha || r.id) + '</span>' +
+        '<span style="font-size:11px;color:var(--text);line-height:1.5;">' + (r.texto || '') + '</span>';
+      list.appendChild(li);
+    });
+  });
+
   window.resetSemanaHabitos = async function() {
     if (!confirm('¿Iniciar nueva semana? Se borrarán todos los dots de hábitos.')) return;
     setStatus('syncing');
