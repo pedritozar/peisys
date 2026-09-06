@@ -654,6 +654,16 @@
 
   <!-- ====== TRADING ====== -->
   <section class="section" id="trading">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">PUENTE TRADING-DESK</div>
+        <span class="card-badge badge-green">RACHAS · WIN RATE</span>
+      </div>
+      <div id="puente-trading-card">
+        <div style="color:var(--text-dim);font-size:11px;text-align:center;padding:20px 0">Esperando datos de trading-desk…</div>
+      </div>
+    </div>
+
     <div class="grid-2" style="margin-bottom:16px;">
       <div class="card">
         <div class="card-header">
@@ -1510,6 +1520,36 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
   }, (err) => {
     console.error('Error ops:', err);
     setStatus('offline');
+  });
+
+  // ===============================
+  // PUENTE TRADING-DESK — resumen_trading (solo lectura)
+  // ===============================
+  function renderPuenteTrading(data) {
+    const el = document.getElementById('puente-trading-card');
+    if (!el) return;
+    const wrColor = (v) => (v || 0) >= 50 ? 'var(--green)' : 'var(--red)';
+    const pnlColor = (v) => (v || 0) >= 0 ? 'var(--green)' : 'var(--red)';
+    const rachaColor = data.rachaActualType === 'GANADA' ? 'var(--green)' : (data.rachaActualType === 'PERDIDA' ? 'var(--red)' : 'var(--text-dim)');
+    const rachaLabel = data.rachaActualType === 'GANADA' ? 'ganadas' : (data.rachaActualType === 'PERDIDA' ? 'perdidas' : '—');
+    const fecha = data.actualizado ? new Date(data.actualizado).toLocaleString('es-AR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+    el.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px 20px;font-family:'DM Mono',monospace">
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Racha Actual</div><div style="font-size:16px;color:${rachaColor}">${data.rachaActual || 0} ${rachaLabel}</div></div>
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Win Rate Semana</div><div style="font-size:16px;color:${wrColor(data.winRateSemana)}">${data.tradesSemana ? data.winRateSemana.toFixed(1)+'%' : '—'}</div></div>
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">P&L Semana</div><div style="font-size:16px;color:${pnlColor(data.pnlSemana)}">${data.tradesSemana ? (data.pnlSemana>=0?'+':'')+data.pnlSemana.toFixed(2)+'R' : '—'}</div></div>
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Win Rate Mes</div><div style="font-size:16px;color:${wrColor(data.winRateMes)}">${data.tradesMes ? data.winRateMes.toFixed(1)+'%' : '—'}</div></div>
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">P&L Mes</div><div style="font-size:16px;color:${pnlColor(data.pnlMes)}">${data.tradesMes ? (data.pnlMes>=0?'+':'')+data.pnlMes.toFixed(2)+'R' : '—'}</div></div>
+        <div><div style="font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px">Win Rate Año</div><div style="font-size:16px;color:${wrColor(data.winRateAnio)}">${data.tradesAnio ? data.winRateAnio.toFixed(1)+'%' : '—'}</div></div>
+      </div>
+      <div style="margin-top:10px;font-size:9px;color:var(--text-dim)">Fuente: trading-desk · actualizado ${fecha}</div>
+    `;
+  }
+
+  onSnapshot(doc(db, 'resumen_trading', 'actual'), (snap) => {
+    if (snap.exists()) renderPuenteTrading(snap.data());
+  }, (err) => {
+    console.warn('Puente trading-desk: sin datos aun o error de lectura', err);
   });
 
   // ===============================
