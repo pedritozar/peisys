@@ -545,6 +545,7 @@
   <button class="nav-tab" onclick="showSection('habitos', this)"><span class="tab-icon">◉</span>HÁBITOS</button>
   <button class="nav-tab" onclick="showSection('revision', this)"><span class="tab-icon">▣</span>REVISIÓN SEMANAL</button>
   <button class="nav-tab" onclick="showSection('meses', this); renderMesActual();"><span class="tab-icon">◫</span>MESES</button>
+  <button class="nav-tab" onclick="showSection('fisico', this)"><span class="tab-icon">◐</span>FÍSICO</button>
 </nav>
 
 <!-- MAIN -->
@@ -1261,6 +1262,39 @@
         </thead>
         <tbody id="mes-historial-body"></tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- ====== FÍSICO ====== -->
+  <section class="section" id="fisico">
+    <div class="section-title">BITÁCORA FÍSICA — ACONDICIONAMIENTO</div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">BITÁCORA DE FUERZA Y ACONDICIONAMIENTO</div>
+        <span class="card-badge badge-red">CARGA FÍSICA</span>
+      </div>
+      <div class="input-row-3" style="margin-bottom:8px;">
+        <div class="input-group">
+          <label class="input-label">Ejercicio / Movimiento</label>
+          <input type="text" class="input-field" id="f-ejercicio" placeholder="Ej: Sentadilla Lona 10kg, Ouchi-komi...">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Series x Reps</label>
+          <input type="text" class="input-field" id="f-volumen" placeholder="Ej: 3x10">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Carga / Kilos</label>
+          <input type="number" class="input-field" id="f-carga" placeholder="10">
+        </div>
+      </div>
+      <button class="btn btn-red btn-sm" onclick="addFuerza()" style="width:100%; margin-bottom:12px;">+ REGISTRAR SERIE</button>
+
+      <div class="divider"></div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--text-dim);margin-bottom:10px;">REGISTROS DE HOY</div>
+      <ul class="op-log" id="fuerza-list" style="max-height:150px;">
+        <div style="color:var(--text-dim);font-size:11px;">Sin actividad registrada hoy.</div>
+      </ul>
     </div>
   </section>
 
@@ -2163,6 +2197,61 @@ if (typeof renderEquityCurve === 'function') renderEquityCurve(allOps);
   window.eliminarTarea = async function(id) {
     if (!confirm('¿Eliminar esta tarea?')) return;
     try { await deleteDoc(doc(db, 'tareas', id)); flash('✓ Tarea eliminada'); } catch(e) { flash('Error: ' + e.message); }
+  };
+
+  // ===============================
+  // BITÁCORA DE FUERZA (GEM FÍSICO — MVP)
+  // ===============================
+  window.addFuerza = async function() {
+    const ejercicio = document.getElementById('f-ejercicio').value.trim();
+    const volumen = document.getElementById('f-volumen').value.trim();
+    const carga = document.getElementById('f-carga').value.trim();
+    if (!ejercicio) return;
+
+    const fecha = new Date().toLocaleDateString('es-AR');
+    setStatus('syncing');
+    try {
+      await addDoc(collection(db, 'entrenamiento_fuerza'), {
+        ejercicio, volumen, carga, fecha,
+        timestamp: serverTimestamp()
+      });
+      document.getElementById('f-ejercicio').value = '';
+      document.getElementById('f-volumen').value = '';
+      document.getElementById('f-carga').value = '';
+      flash('✓ Carga física registrada en Firebase');
+      setStatus('online');
+    } catch(e) { flash('Error: ' + e.message); setStatus('offline'); }
+  };
+
+  onSnapshot(query(collection(db, 'entrenamiento_fuerza'), orderBy('timestamp', 'desc')), snapshot => {
+    const list = document.getElementById('fuerza-list');
+    if (!list) return;
+    list.innerHTML = '';
+    const hoy = new Date().toLocaleDateString('es-AR');
+    const registrosHoy = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.fecha === hoy);
+
+    if (registrosHoy.length === 0) {
+      list.innerHTML = '<div style="color:var(--text-dim);font-size:11px;">Sin actividad registrada hoy.</div>';
+      return;
+    }
+
+    registrosHoy.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'op-item';
+      li.innerHTML = `
+        <span class="op-pair" style="flex:2;">${r.ejercicio}</span>
+        <span style="flex:1; color:var(--text); font-size:11px; text-align:center;">${r.volumen}</span>
+        <span style="flex:1; color:var(--red); font-size:11px; text-align:right;">${r.carga ? r.carga + ' kg' : '—'}</span>
+        <span style="color:var(--red);cursor:pointer;font-size:12px;margin-left:12px;"
+          onclick="eliminarRegistroFuerza('${r.id}')">✕</span>
+      `;
+      list.appendChild(li);
+    });
+  });
+
+  window.eliminarRegistroFuerza = async function(id) {
+    if (!confirm('¿Eliminar este registro de fuerza?')) return;
+    try { await deleteDoc(doc(db, 'entrenamiento_fuerza', id)); flash('✓ Registro eliminado'); } catch(e) { flash('Error: ' + e.message); }
   };
 
   // ===============================
